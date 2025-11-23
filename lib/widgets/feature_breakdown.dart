@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class FeatureBreakdown extends StatefulWidget {
   final Map<String, double> features;
@@ -102,6 +101,11 @@ class _FeatureBreakdownState extends State<FeatureBreakdown>
           ...widget.features.entries.toList().asMap().entries.map((entry) {
             final index = entry.key;
             final featureEntry = entry.value;
+            final totalFeatures = widget.features.length;
+            // Calculate intervals that fit within [0.0, 1.0]
+            // Start at 0.2, distribute remaining 0.8 across all features
+            final start = 0.2 + (index * 0.7 / totalFeatures);
+            final end = (0.2 + ((index + 1) * 0.7 / totalFeatures)).clamp(0.0, 1.0);
             return _AnimatedFeatureItem(
               label: _formatLabel(featureEntry.key),
               score: featureEntry.value,
@@ -109,8 +113,8 @@ class _FeatureBreakdownState extends State<FeatureBreakdown>
                 CurvedAnimation(
                   parent: _controller,
                   curve: Interval(
-                    index * 0.15,
-                    0.3 + (index * 0.15),
+                    start.clamp(0.0, 1.0),
+                    end,
                     curve: Curves.easeOutCubic,
                   ),
                 ),
